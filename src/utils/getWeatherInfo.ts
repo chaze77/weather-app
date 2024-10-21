@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_KEY } from '../constants/setting';
+import { API_KEY } from '../constants/setting.ts';
 
 const BASE_URL = 'https://api.openweathermap.org/data/2.5/forecast';
 

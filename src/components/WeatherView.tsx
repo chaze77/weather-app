@@ -38,7 +38,7 @@ const WeatherView: React.FC = () => {
   const [city] = useState<string>('Bishkek');
   const [availableDates, setAvailableDates] = useState<string[]>([]); // Типизация как массив строк
 
-  const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+  const handleChange = (_: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
 
@@ -55,7 +55,10 @@ const WeatherView: React.FC = () => {
         );
         setAvailableDates(dates);
       } catch (err) {
-        setError('Не удалось получить данные о погоде');
+        console.error('Ошибка при получении данных о погоде:', err);
+        setError(
+          'Не удалось получить данные о погоде. Проверьте соединение или попробуйте позже.'
+        );
       }
       setLoading(false);
     };
