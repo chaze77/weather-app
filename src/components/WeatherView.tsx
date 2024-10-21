@@ -6,18 +6,37 @@ import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { Details } from './Details';
-import { getWeather } from '../services/weatherService.js';
-import { Charts } from './Charts.js';
-import { ChartData, DailyForecast } from '../types/index.js';
+import { getWeather } from '../utils/getWeatherInfo';
+import { Charts } from './Charts';
+import { Container, CircularProgress, Typography } from '@mui/material';
+
+interface TimeOfDay {
+  timeOfDay: string;
+  temp: number;
+  feelsLike: number;
+  weather: string;
+  icon: string;
+}
+
+export interface DailyForecast {
+  date: string;
+  times: TimeOfDay[];
+}
+
+export interface ChartData {
+  date: string;
+  dayTemp: number;
+  nightTemp: number;
+}
 
 const WeatherView: React.FC = () => {
-  const [value, setValue] = useState('1');
+  const [value, setValue] = useState<string>('1');
   const [weather, setWeather] = useState<DailyForecast[] | null>(null);
   const [chartData, setChartData] = useState<ChartData[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [city] = useState<string>('Bishkek');
-  const [availableDates, setAvailableDates] = useState([]); // Для хранения дат
+  const [availableDates, setAvailableDates] = useState<string[]>([]); // Типизация как массив строк
 
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
@@ -29,14 +48,12 @@ const WeatherView: React.FC = () => {
       try {
         const response = await getWeather(city);
         setWeather(response.dailyForecast);
-        setChartData(response.chartData);
+        setChartData(response.chartData as ChartData[]);
 
         const dates = response.dailyForecast.map(
           (item: DailyForecast) => item.date
         );
         setAvailableDates(dates);
-
-        console.log(response);
       } catch (err) {
         setError('Не удалось получить данные о погоде');
       }
@@ -44,34 +61,49 @@ const WeatherView: React.FC = () => {
     };
 
     fetchWeather();
-  }, []);
+  }, [city]);
 
   return (
-    <div className='card'>
-      <TabContext value={value}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <TabList onChange={handleChange}>
-            <Tab
-              label='Детали погоды'
-              value='1'
-            />
-            <Tab
-              label='График температуры'
-              value='2'
-            />
-          </TabList>
+    <Container>
+      {loading ? (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
+          }}
+        >
+          <CircularProgress />
         </Box>
-        <TabPanel value='1'>
-          <Details
-            data={weather || []}
-            availableDates={availableDates}
-          />
-        </TabPanel>
-        <TabPanel value='2'>
-          <Charts data={chartData || []} />
-        </TabPanel>
-      </TabContext>
-    </div>
+      ) : error ? (
+        <Typography color='error'>{error}</Typography>
+      ) : (
+        <TabContext value={value}>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <TabList onChange={handleChange}>
+              <Tab
+                label='Детали погоды'
+                value='1'
+              />
+              <Tab
+                label='График температуры за 5 дней'
+                value='2'
+              />
+            </TabList>
+          </Box>
+          <TabPanel value='1'>
+            <Details
+              data={weather || []}
+              availableDates={availableDates}
+            />
+          </TabPanel>
+          <TabPanel value='2'>
+            <Charts data={chartData || []} />
+          </TabPanel>
+        </TabContext>
+      )}
+    </Container>
   );
 };
 

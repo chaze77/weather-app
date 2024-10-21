@@ -1,127 +1,4 @@
-// import PropTypes from 'prop-types';
-// import dayjs from 'dayjs';
-// import { Box, Card, CardContent, CardMedia, Typography } from '@mui/material';
-
-// const Details = ({ data }) => {
-//   console.log('data', data);
-
-//   return (
-//     <div>
-//       <Typography
-//         variant='h4'
-//         gutterBottom
-//         component='h4'
-//       >
-//         Бишкек
-//       </Typography>
-//       {data &&
-//         data.map((item, index: string) => (
-//           <div key={index}>
-//             <Typography
-//               variant='h4'
-//               gutterBottom
-//               component='h2'
-//               sx={{ color: 'black', fontSize: '1.5rem' }}
-//             >
-//               {dayjs(item.date).format('DD.MM.YYYY')}
-//             </Typography>
-
-//             <Box
-//               sx={{
-//                 margin: 2,
-//                 padding: 2,
-//                 display: 'flex',
-//                 justifyContent: 'center',
-//                 gap: '20px',
-//                 flexWrap: 'wrap',
-//                 borderRadius: '8px',
-//               }}
-//             >
-//               {item.times &&
-//                 item.times.map((time, i: string) => (
-//                   <Card
-//                     key={i}
-//                     sx={{
-//                       width: 200,
-//                       height: 300,
-//                       marginBottom: 2,
-//                       display: 'flex',
-//                       justifyContent: 'center',
-//                       flexDirection: 'column',
-//                       backgroundColor: '#5397e2',
-//                     }}
-//                   >
-//                     <CardMedia
-//                       component='img'
-//                       height='100'
-//                       image={`http://openweathermap.org/img/wn/${time.icon}@2x.png`}
-//                       alt={time.weather}
-//                       sx={{
-//                         objectFit: 'contain',
-//                         width: 'auto',
-//                         height: '100px',
-//                       }}
-//                     />
-
-//                     <CardContent>
-//                       <Typography
-//                         gutterBottom
-//                         variant='h6' // Уменьшаем размер заголовка
-//                         component='div'
-//                         sx={{ color: 'white', fontSize: '1.85rem' }} // Делаем текст белым и чуть меньше
-//                       >
-//                         {time.timeOfDay}
-//                       </Typography>
-
-//                       <Typography
-//                         variant='body2'
-//                         sx={{
-//                           color: 'white',
-//                           fontSize: '1.85rem',
-//                           textAlign: 'left',
-//                           fontWeight: '500',
-//                         }}
-//                       >
-//                         {Math.ceil(time.temp)}°C
-//                       </Typography>
-//                       <Typography
-//                         variant='body2'
-//                         sx={{
-//                           color: 'white',
-//                           fontSize: '0.8rem',
-//                           textAlign: 'left',
-//                         }}
-//                       >
-//                         {time.weather}
-//                       </Typography>
-//                       <Typography
-//                         variant='body2'
-//                         sx={{
-//                           color: 'white',
-//                           fontSize: '0.8rem',
-//                           textAlign: 'left',
-//                         }}
-//                       >
-//                         Ощущается как: {Math.ceil(time.feelsLike)}°C
-//                       </Typography>
-//                     </CardContent>
-//                   </Card>
-//                 ))}
-//             </Box>
-//           </div>
-//         ))}
-//     </div>
-//   );
-// };
-
-// Details.propTypes = {
-//   data: PropTypes.array.isRequired,
-// };
-
-// export { Details };
-
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import {
   Box,
@@ -135,16 +12,26 @@ import {
   Select,
   SelectChangeEvent,
 } from '@mui/material';
-import { DetailsProps } from '../types';
+import { DailyForecast } from './WeatherView';
+
+interface DetailsProps {
+  data: DailyForecast[];
+  availableDates: string[];
+}
 
 const Details: React.FC<DetailsProps> = ({ data, availableDates }) => {
   const [selectedDate, setSelectedDate] = useState(availableDates[0] || '');
+
+  useEffect(() => {
+    if (availableDates.length > 0) {
+      setSelectedDate(availableDates[0]);
+    }
+  }, [availableDates]);
 
   const handleDateChange = (event: SelectChangeEvent) => {
     setSelectedDate(event.target.value);
   };
 
-  // Фильтруем данные по выбранной дате
   const filteredWeather = data
     ? data.filter((item) => item.date === selectedDate)
     : [];
@@ -213,7 +100,8 @@ const Details: React.FC<DetailsProps> = ({ data, availableDates }) => {
                       display: 'flex',
                       justifyContent: 'center',
                       flexDirection: 'column',
-                      backgroundColor: '#5397e2',
+                      background:
+                        'linear-gradient(135deg, #6ba4d0 0%, #2e5571 100%)',
                     }}
                   >
                     <CardMedia
@@ -280,11 +168,6 @@ const Details: React.FC<DetailsProps> = ({ data, availableDates }) => {
       )}
     </div>
   );
-};
-
-Details.propTypes = {
-  data: PropTypes.array.isRequired,
-  availableDates: PropTypes.array.isRequired,
 };
 
 export { Details };

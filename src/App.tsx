@@ -1,13 +1,12 @@
-import { Container } from '@mui/material';
 import './App.css';
 import WeatherView from './components/WeatherView';
+import Navbar from './components/Navbar';
 
 function App() {
   return (
     <div>
-      <Container>
-        <WeatherView />
-      </Container>
+      <Navbar />
+      <WeatherView />
     </div>
   );
 }
